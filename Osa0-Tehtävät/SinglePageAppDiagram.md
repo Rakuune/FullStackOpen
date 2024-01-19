@@ -23,3 +23,5 @@ SinglePageAppDiagram
     activate server
     server-->>browser: the JSON file
     deactivate server
+
+    testi
