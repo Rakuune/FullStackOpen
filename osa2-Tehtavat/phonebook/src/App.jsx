@@ -1,18 +1,26 @@
-import { useState } from 'react'
-import Filter from './components/Filter';
-import PersonForm from './components/PersonForm';
-import Persons from './components/Persons';
+import { useState, useEffect } from 'react'
+import Filter from './components/Filter'
+import PersonForm from './components/PersonForm'
+import Persons from './components/Persons'
+import numberService from './services/numbers'
+import Notification from './components/Notification'
+import './index.css'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+  const [persons, setPersons] = useState([])
   const [newNumber, setNewNumber] = useState('')
   const [newName, setNewName] = useState('')
   const [filter, setFilter] = useState('')
+  const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    numberService
+      .getAll()
+      .then(responseData => {
+        console.log('Fetched data: ', responseData)
+        setPersons(responseData);
+      })
+  }, [])
 
   const handleNameChange = (event) => {
     console.log(event.target.value)
@@ -26,31 +34,74 @@ const App = () => {
     setFilter(event.target.value.toLowerCase())
   }
 
-  const filteredPersons = persons.filter(person => person.name.toLowerCase().includes(filter))
+  const deleteNumber = id => {
+    const person = persons.find(p => p.id === id)
+    if (person) {
+      if (window.confirm(`Delete ${person.name}?`)) {
+        numberService
+          .remove(id)
+          .then(() => {
+            setPersons(persons.filter(p => p.id !== id))
+          })
+          .catch(error => {
+            alert(`The number of ${person.name} was already deleted from server`)
+            setPersons(persons.filter(p => p.id !== id))
+          })
+      }
+    } else {
+      console.log('Person not found', id)
+    }
+  }
+  console.log("Persons array:", persons)
+
+  const filteredPersons = persons.filter(person => {
+    if (!person) {
+      console.warn("Undefined person found:", person)
+      return false;
+    }
+    return person.name.toLowerCase().includes(filter.toLowerCase())
+  })
 
   const addName = (event) => {
-    event.preventDefault()
-    const nameExists = persons.some(person => person.name.toLowerCase() === newName.toLowerCase())
+    event.preventDefault();
+    const nameExists = persons.some(person =>
+      person.name.toLowerCase() === newName.toLowerCase()
+    )
+
     if (nameExists) {
       alert(`${newName} is already added to phonebook`)
     } else {
       const nameObject = {
         name: newName,
         number: newNumber,
-        id: persons.length + 1,
-      };
-      setPersons(persons.concat(nameObject))
-      setNewName('')
-      setNewNumber('')
+      }
+
+      numberService.create(nameObject)
+        .then(response => {
+          if (response) {
+            setPersons(persons.concat(response))
+            setNewName('')
+            setNewNumber('')
+            setMessage(`Added ${response.name}`);
+            setTimeout(() => {
+              setMessage(null)
+            }, 5000)
+          }
+        })
+        .catch(error => {
+          console.error('Error adding person:', error)
+          alert('An error occurred while adding the person.')
+        })
     }
   }
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message}/>
       <Filter currentValue={filter} onFilterChange={handleFilterChange} />
 
       <h2>Add a new</h2>
-      <PersonForm 
+      <PersonForm
         addName={addName}
         newName={newName}
         handleNameChange={handleNameChange}
@@ -59,7 +110,7 @@ const App = () => {
       />
 
       <h3>Numbers</h3>
-      <Persons persons={filteredPersons} />
+      <Persons persons={filteredPersons} onDelete={deleteNumber} />
     </div>
   );
 }
