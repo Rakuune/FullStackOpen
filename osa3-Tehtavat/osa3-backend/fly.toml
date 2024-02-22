@@ -1,16 +1,15 @@
-# fly.toml app configuration file generated for phonebookraku on 2024-02-13T01:39:45+02:00
+# fly.toml app configuration file generated for phonebookraku-proud-sunset-6617 on 2024-02-21T06:54:51+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'phonebookraku'
+app = 'phonebookraku-proud-sunset-6617'
 primary_region = 'arn'
 
 [build]
 
 [env]
-  PORT = "3000" 
-
+  PORT = '3000'
 
 [http_service]
   internal_port = 3000
