@@ -11,7 +11,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [newName, setNewName] = useState('')
   const [filter, setFilter] = useState('')
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState(null)
 
   useEffect(() => {
     numberService
@@ -41,10 +41,6 @@ const App = () => {
         numberService
           .remove(id)
           .then(() => {
-            setPersons(persons.filter(p => p.id !== id))
-          })
-          .catch(error => {
-            alert(`The number of ${person.name} was already deleted from server`)
             setPersons(persons.filter(p => p.id !== id))
           })
       }

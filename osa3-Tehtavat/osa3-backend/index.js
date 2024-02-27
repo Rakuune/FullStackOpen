@@ -16,32 +16,33 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 app.use(express.json())
 
 app.get('/api/persons', (req, response) => {
-  console.log(typeof Person)
-  console.log(Person.find)
   Person.find({}).then((persons) => {
     response.json(persons)
   })
 })
 
-app.post('/api/persons', (request, response, next) => {
+app.post('/api/persons', async (request, response, next) => {
   const { name, number } = request.body
   if (!name || !number) {
     return response.status(400).json({ error: 'Name or Number is missing' })
   }
 
-  Person.findOne({ name: name }).then(existingPerson => {
+  try {
+    const existingPerson = await Person.findOne({name: name})
     if (existingPerson) {
-      return response.status(400).json({ error: 'Name already exists' });
+      return response.status(400).json({ error: 'Name already exists' })
     }
-  })
-  const newPerson = new Person({
-    name: name,
-    number: number
-  })
-  newPerson.save().then(savedPerson => {
+
+    const person = new Person({
+      name: name,
+      number: number,
+    })
+
+    const savedPerson = await person.save()
     response.json(savedPerson)
-  })
-  .catch((error) => next(error))
+  } catch (error) {
+    next(error)
+  }
 })
 
 app.get('/info', (response) => {
