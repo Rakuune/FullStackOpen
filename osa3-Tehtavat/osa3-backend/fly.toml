@@ -1,15 +1,12 @@
-# fly.toml app configuration file generated for phonebookraku-proud-sunset-6617 on 2024-02-21T06:54:51+02:00
+# fly.toml app configuration file generated for osa3-backend on 2024-03-01T19:32:36+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'phonebookraku-proud-sunset-6617'
-primary_region = 'arn'
+app = 'osa3-backend'
+primary_region = 'ams'
 
 [build]
-
-[env]
-  PORT = '3000'
 
 [http_service]
   internal_port = 3000
@@ -20,6 +17,6 @@ primary_region = 'arn'
   processes = ['app']
 
 [[vm]]
+  memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 1024
