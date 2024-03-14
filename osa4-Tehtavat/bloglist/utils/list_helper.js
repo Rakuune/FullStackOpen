@@ -27,13 +27,30 @@ const dummy = (blogs) => {
     }, {})
     const authorArray = Object.entries(author)
     const reducer = (last, now) => {
-      return last > now ? last : now
+      return last[1] > now[1] ? last : now
     }
-    const result = authorArray.reduce(reducer)
+    const result = authorArray.reduce(reducer,[undefined, 0])
     return { author: result[0], blogs: result[1] }
   }
+
+  const mostLikes = (blogs) => {
+    const reducer = (last, now) => {
+      last[now.author] = (last[now.author] || 0) + now.likes
+      return last
+    }
+    const result = blogs.reduce(reducer, {})
+    const authorArray = Object.entries(result)
+    const reducer2 = (last, now) => {
+      return last[1] > now[1] ? last : now
+    }
+    const result2 = authorArray.reduce(reducer2,[undefined, 0])
+    return { author: result2[0], likes: result2[1] }
+  }
+  
   module.exports = {
     dummy,
     totalLikes,
     favoriteBlog,
+    mostBlogs,
+    mostLikes,
   }
