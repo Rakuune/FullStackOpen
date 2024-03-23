@@ -4,7 +4,8 @@ const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./models/person')
-console.log(Person)
+const config = require('./utils/config')
+const logger = require('./utils/logger')
 
 const app = express()
 
@@ -49,13 +50,11 @@ app.get('/info', (response) => {
 	Person.find({})
 		.count()
 		.then((count) => {
-			console.log(count)
 			response.send(`Phonebook has info for ${count} people.`)
 		})
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
-	console.log(request.params.id)
 	Person.findById(request.params.id)
 		.then((person) => {
 			if (person) {
@@ -70,7 +69,6 @@ app.get('/api/persons/:id', (request, response, next) => {
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
-	console.log(req.params.id)
 	Person.findByIdAndDelete(req.params.id)
 		.then(() => {
 			res.status(204).end()
@@ -79,7 +77,7 @@ app.delete('/api/persons/:id', (req, res, next) => {
 })
 
 const errorHandler = (error, request, response, next) => {
-	console.error(error.message)
+	logger.error(error.message)
 
 	if (error.name === 'CastError') {
 		return response.status(400).send({ error: 'malformatted id' })
@@ -96,5 +94,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-	console.log(`Server running on port ${PORT}`)
+	logger.info(`Server running on port ${PORT}`)
 })
