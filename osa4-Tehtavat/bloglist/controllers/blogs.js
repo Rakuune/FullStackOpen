@@ -3,13 +3,9 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 
 blogRouter.get('/', async (request, response) => {
-  try {
-    const blogs = await Blog.find({})
-    response.json(blogs)
-  } catch (error) {
-    console.error(error)
-    res.status(500).end()
-  }
+  const blogs = await Blog.find({})
+    .populate('user', { username: 1, name: 1 })
+  response.json(blogs)
 })
 
 blogRouter.post('/', async (request, response) => {
